@@ -29,6 +29,9 @@ const SMSPage = () => {
     buildings: 0,    // منشآت
     houses: 0,       // بيوت
   });
+  const [messageType, setMessageType] = useState('points'); // 'points' or 'custom'
+  const [customMessage, setCustomMessage] = useState('');
+  const [sendingMessageType, setSendingMessageType] = useState(null);
 
   const fetchAllPoints = async () => {
     try {
@@ -356,14 +359,28 @@ const SMSPage = () => {
     }
   };
 
-  const handleNameSelect = (userName) => {
-    setSelectedNames(prev => {
-      if (prev.includes(userName)) {
-        return prev.filter(n => n !== userName);
-      } else {
-        return [...prev, userName];
+  const handleNameSelect = async (name) => {
+    let newSelectedNames;
+    if (selectedNames.includes(name)) {
+      newSelectedNames = selectedNames.filter(n => n !== name);
+    } else {
+      newSelectedNames = [...selectedNames, name];
+    }
+    setSelectedNames(newSelectedNames);
+
+    // Update message preview for points type
+    if (messageType === 'points' && newSelectedNames.length === 1) {
+      const points = await fetchUserPoints(name);
+      if (points) {
+        const allPoints = await fetchAllPoints();
+        const individualPoint = allPoints.individualPoints.find(p => p.name === name);
+        const individualPoints = individualPoint ? individualPoint.points : {};
+        const message = generateMessage(points, individualPoints);
+        setMessagePreview(message);
       }
-    });
+    } else if (messageType === 'points' && newSelectedNames.length === 0) {
+      setMessagePreview(null);
+    }
   };
 
   const handleSendSMS = async () => {
@@ -377,56 +394,97 @@ const SMSPage = () => {
     setSuccess('');
 
     try {
-      const messages = await Promise.all(selectedNames.map(async (userName) => {
-        const userRecord = names.find(n => n.name === userName);
-        if (!userRecord?.phone) {
-          console.warn(`No phone number for user: ${userName}`);
-          return null;
+      if (messageType === 'custom') {
+        if (!customMessage.trim()) {
+          setError('الرجاء كتابة رسالة');
+          setLoading(false);
+          return;
         }
 
-        const points = await fetchUserPoints(userName);
-        if (!points || Object.keys(points).length === 0) {
-          console.warn(`No points data found for user: ${userName}`);
-          return null;
+        let successCount = 0;
+        for (const userName of selectedNames) {
+          const userRecord = names.find(n => n.name === userName);
+          if (!userRecord?.phone) {
+            console.warn(`No phone number for user: ${userName}`);
+            continue;
+          }
+
+          const response = await fetch('https://app.mobile.net.sa/api/v1/send-bulk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer 7fKW0kIsU20XRdBxN0pXSyingO8o3Eo9LAIwANjt'
+            },
+            body: JSON.stringify({
+              numbers: [userRecord.phone.replace('+', '')],
+              messageBody: customMessage,
+              senderName: "Mobile.SA",
+              sendAtOption: "Now"
+            })
+          });
+
+          const data = await response.json();
+          if (data.status === "Success") {
+            successCount++;
+          } else {
+            console.warn(`Failed to send message to ${userName}: ${data.message}`);
+          }
         }
 
-        // Get individual points
-        const allPoints = await fetchAllPoints();
-        const individualPoint = allPoints.individualPoints.find(p => p.name === userName);
-        const individualPoints = individualPoint ? individualPoint.points : {};
+        if (successCount > 0) {
+          setSuccess(`تم إرسال ${successCount} رسالة بنجاح`);
+          setCustomMessage('');
+        } else {
+          throw new Error('فشل إرسال جميع الرسائل');
+        }
+      } else {
+        let successCount = 0;
+        for (const userName of selectedNames) {
+          const userRecord = names.find(n => n.name === userName);
+          if (!userRecord?.phone) {
+            console.warn(`No phone number for user: ${userName}`);
+            continue;
+          }
 
-        return {
-          userName,
-          number: userRecord.phone,
-          message: generateMessage(points, individualPoints)
-        };
-      }));
+          const points = await fetchUserPoints(userName);
+          if (!points || Object.keys(points).length === 0) {
+            console.warn(`No points data found for user: ${userName}`);
+            continue;
+          }
 
-      const validMessages = messages.filter(Boolean);
+          const allPoints = await fetchAllPoints();
+          const individualPoint = allPoints.individualPoints.find(p => p.name === userName);
+          const individualPoints = individualPoint ? individualPoint.points : {};
+          const message = generateMessage(points, individualPoints);
 
-      for (const { number, message, userName } of validMessages) {
-        const response = await fetch('https://app.mobile.net.sa/api/v1/send-bulk', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer 7fKW0kIsU20XRdBxN0pXSyingO8o3Eo9LAIwANjt'
-          },
-          body: JSON.stringify({
-            numbers: [number.replace('+', '')],
-            messageBody: message,
-            senderName: "Mobile.SA",
-            sendAtOption: "Now"
-          })
-        });
+          const response = await fetch('https://app.mobile.net.sa/api/v1/send-bulk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer 7fKW0kIsU20XRdBxN0pXSyingO8o3Eo9LAIwANjt'
+            },
+            body: JSON.stringify({
+              numbers: [userRecord.phone.replace('+', '')],
+              messageBody: message,
+              senderName: "Mobile.SA",
+              sendAtOption: "Now"
+            })
+          });
 
-        const data = await response.json();
-        if (data.status !== "Success") {
-          throw new Error(`Failed to send message to ${userName}: ${data.message}`);
+          const data = await response.json();
+          if (data.status === "Success") {
+            successCount++;
+          } else {
+            console.warn(`Failed to send message to ${userName}: ${data.message}`);
+          }
+        }
+
+        if (successCount > 0) {
+          setSuccess(`تم إرسال ${successCount} رسالة بنجاح`);
+        } else {
+          throw new Error('فشل إرسال جميع الرسائل');
         }
       }
-
-      setSuccess('تم إرسال الرسائل بنجاح');
-      setSelectedNames([]);
     } catch (error) {
       console.error('Error sending SMS:', error);
       setError(error.message || 'حدث خطأ أثناء إرسال الرسائل');
@@ -459,6 +517,18 @@ const SMSPage = () => {
     }));
   };
 
+  // Update the message type selection handler
+  const handleMessageTypeChange = (type) => {
+    if (type !== messageType) {
+      setMessageType(type);
+      setSelectedNames([]); // Clear selected names when switching message type
+      setMessagePreview(null); // Clear any existing preview
+      if (type === 'custom') {
+        setCustomMessage(''); // Clear custom message when switching to points
+      }
+    }
+  };
+
   return (
     <PageTransition>
       <div className="page-container">
@@ -470,60 +540,113 @@ const SMSPage = () => {
         <NavigationPanel />
         <div className="container">
           <Header title="إرسال رسائل SMS" />
-          <div className="names-section">
-            <div className="names-header">
-              <h2>اختر الأسماء</h2>
+          <div className="sms-container">
+            <div className="message-type-selector">
               <button 
-                className={`select-all-btn ${selectedNames.length === names.length ? 'all-selected' : ''}`}
-                onClick={handleSelectAll}
+                className={`type-button ${messageType === 'points' ? 'active' : ''}`}
+                onClick={() => handleMessageTypeChange('points')}
               >
-                {selectedNames.length === names.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
+                <span className="icon">🎯</span>
+                <span className="text">إرسال النقاط</span>
+              </button>
+              <button 
+                className={`type-button ${messageType === 'custom' ? 'active' : ''}`}
+                onClick={() => handleMessageTypeChange('custom')}
+              >
+                <span className="icon">✉️</span>
+                <span className="text">رسالة مخصصة</span>
               </button>
             </div>
-            <div className="names-grid">
-              {names.map(({ name, group, phone }, index) => (
-                <button
-                  key={`${name}-${index}`}
-                  className={`name-btn ${selectedNames.includes(name) ? 'selected' : ''}`}
-                  onClick={() => handleNameSelect(name)}
+
+            <div className="names-section">
+              <div className="names-header">
+                <h2>اختر المستلمين</h2>
+                <button 
+                  className={`select-all-btn ${selectedNames.length === names.length ? 'all-selected' : ''}`}
+                  onClick={handleSelectAll}
                 >
-                  <span className="name">{name}</span>
-                  <span className="group">{group}</span>
-                  <span className="phone">{phone}</span>
+                  {selectedNames.length === names.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {messagePreview && (
-            <div className="message-preview">
-              <h3>نموذج الرسالة</h3>
-              <div className="message-content">
-                <pre>{messagePreview}</pre>
               </div>
-              <div className="message-info">
-                <span>سيتم إرسال هذه الرسالة إلى {selectedNames.length} مستلم</span>
+              <div className="names-grid">
+                {names.map(({ name, group, phone }, index) => (
+                  <button 
+                    key={`${name}-${index}`}
+                    className={`name-btn ${selectedNames.includes(name) ? 'selected' : ''}`}
+                    onClick={() => handleNameSelect(name)}
+                  >
+                    <span className="name">{name}</span>
+                    <span className="group">{group}</span>
+                    <span className="phone">{phone}</span>
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
-
-          <button
-            className="send-button"
-            onClick={handleSendSMS}
-            disabled={loading || selectedNames.length === 0}
-          >
-            {loading ? (
-              <>
-                <span className="spinner"></span>
-                جاري الإرسال...
-              </>
+            {messageType === 'custom' ? (
+              <div className="custom-message-section">
+                <textarea
+                  className="message-input"
+                  placeholder="اكتب رسالتك هنا..."
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  rows={4}
+                />
+                <p className="char-count">
+                  {customMessage.length}/160 حرف
+                </p>
+                
+                {customMessage && (
+                  <div className="message-preview">
+                    <h3>معاينة الرسالة</h3>
+                    <div className="message-content">
+                      <pre>{customMessage}</pre>
+                    </div>
+                    {selectedNames.length > 0 && (
+                      <div className="message-info">
+                        <span>سيتم إرسال هذه الرسالة إلى {selectedNames.length} مستلم</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             ) : (
-              'إرسال الرسائل'
+              messagePreview && (
+                <div className="message-preview">
+                  <h3>نموذج الرسالة</h3>
+                  <div className="message-content">
+                    <pre>{messagePreview}</pre>
+                  </div>
+                  <div className="message-info">
+                    <span>سيتم إرسال هذه الرسالة إلى {selectedNames.length} مستلم</span>
+                  </div>
+                </div>
+              )
             )}
-          </button>
+
+            {error && <div className="error-message">{error}</div>}
+            {success && <div className="success-message">{success}</div>}
+
+            <button 
+              className="send-button"
+              onClick={handleSendSMS}
+              disabled={
+                loading || 
+                selectedNames.length === 0 || 
+                (messageType === 'custom' && !customMessage.trim())
+              }
+            >
+              {loading ? (
+                <span className="loading-text">
+                  جاري إرسال {messageType === 'custom' ? 'الرسائل المخصصة' : 'رسائل النقاط'}...
+                </span>
+              ) : (
+                <span>
+                  إرسال {messageType === 'custom' ? 'الرسائل المخصصة' : 'رسائل النقاط'}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </PageTransition>
