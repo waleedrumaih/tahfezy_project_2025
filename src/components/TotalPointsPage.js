@@ -14,6 +14,7 @@ import {
 import './TotalPointsPage.css';
 import NavigationPanel from './NavigationPanel';
 import PageTransition from './PageTransition';
+import Header from './Header';
 
 const TotalPointsPage = () => {
   const navigate = useNavigate();
@@ -297,77 +298,23 @@ const TotalPointsPage = () => {
   return (
     <PageTransition>
       <div className="page-container">
+        <div className="background-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+        </div>
         <NavigationPanel />
         <div className="container">
-          <div className="content-card">
-            <div className="total-points-container">
-              <div className="page-header">
-                <h1>مجموع النقاط</h1>
+          <Header title="مجموع النقاط" />
+          <div className="points-container">
+            {sortedNames.length === 0 ? (
+              <div className="no-points-message">
+                <p>لا توجد نقاط مسجلة حتى الآن</p>
               </div>
-
-              <div className="summary-section">
-                <h2>ملخص الإنجازات حسب المجموعات</h2>
-                <div className="groups-summary">
-                  {Object.entries(calculateGroupCounts()).length > 0 ? (
-                    Object.entries(calculateGroupCounts())
-                      .sort((a, b) => b[1].totalPoints - a[1].totalPoints) // Sort by total points
-                      .map(([groupName, data]) => (
-                        <div key={groupName} className="group-summary-card">
-                          <h3 className="group-name">
-                            {data.isGroup ? `مجموعة ${groupName}` : groupName}
-                          </h3>
-                          <div className="points-breakdown">
-                            <div className="points-row">
-                              <span className="points-label">نقاط المجموعة:</span>
-                              <div className="points-details">
-                                {data.groupPoints['مخطط'] > 0 && (
-                                  <span className="point-type">مخطط: {data.groupPoints['مخطط']}</span>
-                                )}
-                                {data.groupPoints['مشروع'] > 0 && (
-                                  <span className="point-type">مشروع: {data.groupPoints['مشروع']}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="group-stats">
-                            <div className="stat-card">
-                              <div className="stat-icon">🏘️</div>
-                              <div className="stat-details">
-                                <span className="stat-value">{data.neighborhoodCount || 0}</span>
-                                <span className="stat-label">حي</span>
-                              </div>
-                            </div>
-                            <div className="stat-card">
-                              <div className="stat-icon">📋</div>
-                              <div className="stat-details">
-                                <span className="stat-value">{data.مخططCount || 0}</span>
-                                <span className="stat-label">مخطط</span>
-                              </div>
-                            </div>
-                            <div className="stat-card">
-                              <div className="stat-icon">🏗️</div>
-                              <div className="stat-details">
-                                <span className="stat-value">{data.مشروعCount || 0}</span>
-                                <span className="stat-label">مشروع</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                  ) : (
-                    <div className="no-achievements-message">
-                      لا توجد إنجازات للمجموعات حتى الآن
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {sortedNames.length === 0 ? (
-                <div className="no-points-message">
-                  <p>لا توجد نقاط مسجلة حتى الآن</p>
-                </div>
-              ) : (
-                <div className="points-grid">
+            ) : (
+              <>
+                {/* Desktop Grid View */}
+                <div className="points-grid desktop-view">
                   {sortedNames.map(({ name, points, total, neighborhoodCount, مخططCount, مشروعCount, group }) => (
                     <div key={name} className="points-card">
                       <div className="points-card-header">
@@ -396,8 +343,51 @@ const TotalPointsPage = () => {
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+
+                {/* Mobile List View */}
+                <div className="points-list mobile-view">
+                  {sortedNames.map(({ name, points, total, neighborhoodCount, مخططCount, مشروعCount, group }) => (
+                    <div key={name} className="list-item">
+                      <div className="list-header">
+                        <h3>{name}</h3>
+                        <span className="group-tag">{group}</span>
+                      </div>
+                      
+                      <div className="list-badges">
+                        <span className="total-badge">{total} نقطة</span>
+                        {neighborhoodCount > 0 && (
+                          <span className="achievement-badge">
+                            <span className="badge-icon">🏘️</span>
+                            {neighborhoodCount} حي
+                          </span>
+                        )}
+                        {مخططCount > 0 && (
+                          <span className="achievement-badge">
+                            <span className="badge-icon">📋</span>
+                            {مخططCount} مخطط
+                          </span>
+                        )}
+                        {مشروعCount > 0 && (
+                          <span className="achievement-badge">
+                            <span className="badge-icon">🏗️</span>
+                            {مشروعCount} مشروع
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="list-details">
+                        {Object.entries(points).map(([point, count]) => (
+                          <div key={point} className="detail-row">
+                            <span className="detail-label">{point}</span>
+                            <span className="detail-value">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -857,3 +857,112 @@
 .edit-btn:hover {
     background: #2563eb;
 }
+
+/* Add these styles for the mobile list view */
+
+.points-grid.desktop-view {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.points-list.mobile-view {
+  display: none;
+}
+
+@media screen and (max-width: 428px) {
+  .points-grid.desktop-view {
+    display: none;
+  }
+
+  .points-list.mobile-view {
+    display: block;
+  }
+
+  .list-item {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+  }
+
+  .list-header h3 {
+    font-size: 1.2rem;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .group-tag {
+    font-size: 0.8rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+  }
+
+  .list-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .total-badge {
+    background: #3b82f6;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  .achievement-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background: #f8fafc;
+    color: #1e293b;
+  }
+
+  .badge-icon {
+    font-size: 1rem;
+  }
+
+  .list-details {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 0.8rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .detail-value {
+    color: #3b82f6;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+}
