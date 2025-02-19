@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Home from './components/Home';
+import HomePage from './components/HomePage';
 import ExcelForm from './components/ExcelForm';
-import TotalPoints from './components/TotalPointsPage';
+import TotalPointsPage from './components/TotalPointsPage';
 import SMSPage from './components/SMSPage';
 
 function App() {
@@ -10,9 +10,9 @@ function App() {
     return (
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/excel-form" element={<ExcelForm />} />
-        <Route path="/total-points" element={<TotalPoints />} />
+        <Route path="/total-points" element={<TotalPointsPage />} />
         <Route path="/sms" element={<SMSPage />} />
       </Routes>
     );
