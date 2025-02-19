@@ -11,6 +11,7 @@ import {
   deleteDoc 
 } from '../firebase';
 import './TotalPointsPage.css';
+import './SharedNav.css';
 
 const TotalPointsPage = () => {
   const navigate = useNavigate();
@@ -316,18 +317,25 @@ const TotalPointsPage = () => {
         <nav className="top-nav">
           <div className="nav-buttons">
             <button 
-              className="nav-button home-btn"
+              className="nav-button"
               onClick={() => navigate('/home')}
               data-tooltip="الرئيسية"
             >
               <span className="icon">⌂</span>
             </button>
             <button 
-              className="nav-button points-btn"
+              className="nav-button"
               onClick={() => navigate('/excel-form')}
               data-tooltip="إضافة نقاط"
             >
               <span className="icon">+</span>
+            </button>
+            <button 
+              className="nav-button"
+              onClick={() => navigate('/sms')}
+              data-tooltip="إرسال رسائل"
+            >
+              <span className="icon">✉</span>
             </button>
           </div>
         </nav>

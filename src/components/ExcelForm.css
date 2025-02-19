@@ -982,3 +982,53 @@
   font-size: 1.2rem;
   font-weight: 600;
 }
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #3b82f6;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.action-button .icon {
+  font-size: 1.25rem;
+}
+
+.sms-button {
+  background: #3b82f6;
+  color: white;
+}
+
+.sms-button:hover {
+  background: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 import './SMSPage.css';
+import './SharedNav.css';
 
 const SMSPage = () => {
   const navigate = useNavigate();
@@ -10,6 +13,7 @@ const SMSPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [messagePreview, setMessagePreview] = useState(null);
 
   const loadExcelData = async () => {
     try {
@@ -29,6 +33,29 @@ const SMSPage = () => {
     loadExcelData();
   }, []);
 
+  useEffect(() => {
+    const generatePreview = async () => {
+      if (selectedNames.length === 0) {
+        setMessagePreview(null);
+        return;
+      }
+
+      const sampleUser = names.find(n => n.name === selectedNames[0]);
+      const userPoints = await calculateUserPoints(sampleUser.name);
+
+      const preview = `•⁠ إمارة منطقة هجر
+
+تم تسجيل (${userPoints?.neighborhoodCount || 0}) أحياء للسكن.
+وبقي (${userPoints?.remainingForNextNeighborhood || 0}) منشآت ${userPoints?.missingTypesText || ''}
+
+تمنياتنا لجميع السكان بالتطور والإزدهار الدائم والمستمر.`;
+
+      setMessagePreview(preview);
+    };
+
+    generatePreview();
+  }, [selectedNames, names]);
+
   const handleSelectAll = () => {
     if (selectedNames.length === names.length) {
       setSelectedNames([]);
@@ -47,68 +74,79 @@ const SMSPage = () => {
     });
   };
 
-  const handleGroupSelect = (group) => {
-    // Get all names from this group
-    const groupNames = names.filter(n => n.group === group).map(n => n.name);
-    
-    // Check if all names from this group are currently selected
-    const allGroupNamesSelected = groupNames.every(name => selectedNames.includes(name));
-    
-    // Create a new copy of selectedNames
-    let newSelectedNames = [...selectedNames];
-    
-    if (allGroupNamesSelected) {
-      // If all selected, remove only this group's names
-      newSelectedNames = newSelectedNames.filter(name => !groupNames.includes(name));
-    } else {
-      // If not all selected, add only missing names from this group
-      groupNames.forEach(name => {
-        if (!newSelectedNames.includes(name)) {
-          newSelectedNames.push(name);
+  // Update the calculateUserPoints function
+  const calculateUserPoints = async (name) => {
+    try {
+      const pointsRef = collection(db, 'names');
+      const q = query(pointsRef, where('name', '==', name));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) return null;
+
+      const userDoc = querySnapshot.docs[0].data();
+      const points = userDoc.points || {};
+
+      // Point types for neighborhood
+      const pointTypes = ['مكتبة', 'مسجد', 'مطعم', 'ملعب'];
+      const houseCount = points['بيت'] || 0;
+      const pointCounts = pointTypes.map(type => points[type] || 0);
+      
+      // Calculate neighborhoods
+      let neighborhoodCount = 0;
+      let remainingHouses = houseCount;
+      let remainingPoints = [...pointCounts];
+      
+      // Try to form neighborhoods using 4 unique things
+      while (true) {
+        const nonZeroPoints = remainingPoints.filter(count => count > 0);
+        
+        if (nonZeroPoints.length < 4) {
+          const missingTypes = 4 - nonZeroPoints.length;
+          if (remainingHouses >= missingTypes) {
+            neighborhoodCount++;
+            remainingHouses -= missingTypes;
+            for (let i = 0; i < remainingPoints.length; i++) {
+              if (remainingPoints[i] > 0) remainingPoints[i]--;
+            }
+          } else {
+            break;
+          }
+        } else {
+          neighborhoodCount++;
+          for (let i = 0; i < remainingPoints.length; i++) {
+            if (remainingPoints[i] > 0) remainingPoints[i]--;
+          }
+        }
+      }
+
+      // Calculate what's needed for next neighborhood
+      const missingTypes = pointTypes.filter((type, index) => {
+        // Check if user has this type
+        const hasType = points[type] && points[type] > 0;
+        // If they don't have it, it's missing
+        return !hasType;
+      }).map(type => {
+        switch(type) {
+          case 'مكتبة': return 'مكتبة';
+          case 'مسجد': return 'مسجد';
+          case 'مطعم': return 'مطعم';
+          case 'ملعب': return 'ملعب';
+          default: return type;
         }
       });
+
+      const missingTypesText = missingTypes.length > 0 ? 
+        `(${missingTypes.join('، ')})` : '';
+
+      return {
+        neighborhoodCount,
+        remainingForNextNeighborhood: missingTypes.length,
+        missingTypesText
+      };
+    } catch (error) {
+      console.error('Error calculating points:', error);
+      return null;
     }
-    
-    setSelectedNames(newSelectedNames);
-  };
-
-  // Add this function to calculate points and remaining items
-  const calculateUserPoints = (name) => {
-    const user = names.find(n => n.name === name);
-    if (!user) return null;
-
-    // Get user's points from TotalPointsPage logic
-    const points = {}; // You'll need to get this from your database
-    
-    // Count complete neighborhoods
-    const pointTypes = ['مكتبة', 'مسجد', 'مطعم', 'ملعب', 'بيت'];
-    let neighborhoodCount = 0;
-    let remainingItems = 0;
-
-    // Count how many of each type
-    const typeCounts = {};
-    pointTypes.forEach(type => {
-      typeCounts[type] = points[type] || 0;
-    });
-
-    // Calculate complete neighborhoods
-    while (true) {
-      const availableTypes = pointTypes.filter(type => typeCounts[type] > 0);
-      if (availableTypes.length >= 4) {
-        neighborhoodCount++;
-        availableTypes.slice(0, 4).forEach(type => {
-          typeCounts[type]--;
-        });
-      } else {
-        remainingItems = 4 - availableTypes.length;
-        break;
-      }
-    }
-
-    return {
-      neighborhoodCount,
-      remainingItems
-    };
   };
 
   // Update handleSendSMS function
@@ -124,20 +162,22 @@ const SMSPage = () => {
 
     try {
       // Create personalized messages for each recipient
-      const messages = selectedNames.map(name => {
-        const userPoints = calculateUserPoints(name);
+      const messages = await Promise.all(selectedNames.map(async (name) => {
+        const userPoints = await calculateUserPoints(name);
         if (!userPoints) return null;
 
-        const personalizedMessage = `•⁠  ⁠إمارة منطقة هجر:
+        const personalizedMessage = `•⁠ إمارة منطقة هجر
 
-تم تسجيل (${userPoints.neighborhoodCount}) أحياء للساكن: 
-وبقي (${userPoints.remainingItems}) لإكمال حي`;
+تم تسجيل (${userPoints.neighborhoodCount}) أحياء للسكن.
+وبقي (${userPoints.remainingForNextNeighborhood}) منشآت ${userPoints.missingTypesText}
+
+تمنياتنا لجميع السكان بالتطور والإزدهار الدائم والمستمر.`;
 
         return {
           number: names.find(n => n.name === name)?.phone,
           message: personalizedMessage
         };
-      }).filter(Boolean);
+      }));
 
       // Send messages in batches
       for (const { number, message } of messages) {
@@ -172,9 +212,6 @@ const SMSPage = () => {
     }
   };
 
-  // Get unique groups
-  const groups = [...new Set(names.map(n => n.group))];
-
   // Add a preview of selected numbers
   const renderSelectedPreview = () => {
     if (selectedNames.length === 0) return null;
@@ -188,12 +225,28 @@ const SMSPage = () => {
         <h3>المستلمون المحددون:</h3>
         <div className="selected-list">
           {selectedData.map(({ name, phone, group }) => (
-            <div key={name} className="selected-item">
+            <div key={`${name}-${phone}`} className="selected-item">
               <span className="selected-name">{name}</span>
               <span className="selected-group">{group}</span>
               <span className="selected-phone">{phone}</span>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMessagePreview = () => {
+    if (!messagePreview) return null;
+
+    return (
+      <div className="message-preview">
+        <h3>نموذج الرسالة</h3>
+        <div className="message-content">
+          <pre>{messagePreview}</pre>
+        </div>
+        <div className="message-info">
+          <span>سيتم إرسال هذه الرسالة إلى {selectedNames.length} مستلم</span>
         </div>
       </div>
     );
@@ -205,67 +258,56 @@ const SMSPage = () => {
         <nav className="top-nav">
           <div className="nav-buttons">
             <button 
-              className="nav-button home-btn"
+              className="nav-button"
               onClick={() => navigate('/home')}
               data-tooltip="الرئيسية"
             >
               <span className="icon">⌂</span>
             </button>
+            <button 
+              className="nav-button"
+              onClick={() => navigate('/excel-form')}
+              data-tooltip="إضافة نقاط"
+            >
+              <span className="icon">+</span>
+            </button>
+            <button 
+              className="nav-button"
+              onClick={() => navigate('/total-points')}
+              data-tooltip="مجموع النقاط"
+            >
+              <span className="icon">∑</span>
+            </button>
           </div>
         </nav>
         <h1>إرسال رسائل SMS</h1>
         
-        <div className="selection-section">
-          <div className="selection-header">
-            <h2>اختيار المستلمين</h2>
+        <div className="names-section">
+          <div className="names-header">
+            <h2>اختر الأسماء</h2>
             <button 
-              className={`select-all-btn ${selectedNames.length === names.length ? 'active' : ''}`}
+              className={`select-all-btn ${selectedNames.length === names.length ? 'all-selected' : ''}`}
               onClick={handleSelectAll}
             >
               {selectedNames.length === names.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
             </button>
           </div>
-
-          <div className="groups-section">
-            <h3>المجموعات</h3>
-            <div className="groups-grid">
-              {groups.map(group => {
-                const groupNames = names.filter(n => n.group === group).map(n => n.name);
-                const allGroupNamesSelected = groupNames.every(name => selectedNames.includes(name));
-                
-                return (
-                  <button
-                    key={group}
-                    className={`group-btn ${allGroupNamesSelected ? 'selected' : ''}`}
-                    onClick={() => handleGroupSelect(group)}
-                  >
-                    <span className="group-name">{group}</span>
-                    <span className="group-count">{groupNames.length}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="names-section">
-            <h3>الأسماء</h3>
-            <div className="names-grid">
-              {names.map(({ name, phone, group }) => (
-                <div 
-                  key={name}
-                  className={`name-card ${selectedNames.includes(name) ? 'selected' : ''}`}
-                  onClick={() => handleNameSelect(name)}
-                >
-                  <div className="name-info">
-                    <span className="name">{name}</span>
-                    <span className="group-tag">{group}</span>
-                  </div>
-                  <span className="phone">{phone}</span>
-                </div>
-              ))}
-            </div>
+          <div className="names-grid">
+            {names.map(({ name, group }) => (
+              <button
+                key={name}
+                className={`name-btn ${selectedNames.includes(name) ? 'selected' : ''}`}
+                onClick={() => handleNameSelect(name)}
+              >
+                <span className="name">{name}</span>
+                <span className="group">{group}</span>
+              </button>
+            ))}
           </div>
         </div>
+
+        {renderMessagePreview()}
+        {renderSelectedPreview()}
 
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
@@ -284,11 +326,9 @@ const SMSPage = () => {
             'إرسال الرسائل'
           )}
         </button>
-
-        {renderSelectedPreview()}
       </div>
     </div>
   );
 };
 
-export default SMSPage; 
+export default SMSPage;

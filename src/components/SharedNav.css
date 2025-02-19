@@ -1,0 +1,75 @@
+.top-nav {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 3rem;
+}
+
+.nav-buttons {
+  display: inline-flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 20px;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.02),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.nav-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #3b82f6;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nav-button:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.nav-button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .nav-buttons {
+    padding: 0.4rem;
+  }
+
+  .nav-button {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .nav-button .icon {
+    font-size: 1.2rem;
+  }
+} 

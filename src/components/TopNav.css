@@ -1,0 +1,65 @@
+.top-nav {
+  margin-bottom: 2rem;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 0.75rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.nav-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #3b82f6;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nav-button:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.nav-button:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.nav-button .icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.nav-button.active {
+  background: #3b82f6;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .nav-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+} 

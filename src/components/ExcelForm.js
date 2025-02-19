@@ -12,6 +12,7 @@ import {
   getDocs 
 } from '../firebase';
 import './ExcelForm.css';
+import './SharedNav.css';
 
 const ExcelForm = () => {
   const navigate = useNavigate();
@@ -285,228 +286,236 @@ const ExcelForm = () => {
   }
 
   return (
-    <div className="page-container">
-      <div className="form-card">
+    <div className="excel-form-page">
+      <div className="container">
         <nav className="top-nav">
           <div className="nav-buttons">
             <button 
-              className="nav-button home-btn"
+              className="nav-button"
               onClick={() => navigate('/home')}
               data-tooltip="الرئيسية"
             >
               <span className="icon">⌂</span>
             </button>
             <button 
-              className="nav-button points-btn"
+              className="nav-button"
               onClick={() => navigate('/total-points')}
-              data-tooltip="النقاط الكلية"
+              data-tooltip="مجموع النقاط"
             >
-              <span className="icon">📊</span>
+              <span className="icon">∑</span>
+            </button>
+            <button 
+              className="nav-button"
+              onClick={() => navigate('/sms')}
+              data-tooltip="إرسال رسائل"
+            >
+              <span className="icon">✉</span>
             </button>
           </div>
         </nav>
-
-        <header className="card-header">
-          <h1>نظام النقاط</h1>
-          <div className="tabs">
-            <button 
-              type="button"
-              className={`tab ${pointType === 'individual' ? 'active' : ''}`}
-              onClick={() => setPointType('individual')}
-            >
-              <span className="icon">👤</span>
-              نقاط فردية
-            </button>
-            <button 
-              type="button"
-              className={`tab ${pointType === 'group' ? 'active' : ''}`}
-              onClick={() => setPointType('group')}
-            >
-              <span className="icon">👥</span>
-              نقاط جماعية
-            </button>
-          </div>
-        </header>
-
-        {error && (
-          <div className="alert alert-error">
-            <span className="icon">⚠️</span>
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="form">
-          <div className="search-section">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder={pointType === 'individual' ? "ابحث عن اسم..." : "ابحث عن مجموعة..."}
-                value={searchQuery}
-                onChange={handleSearch}
-                className="search-input"
-              />
-              {searchResults.length > 0 && (
-                <div className="search-results">
-                  {searchResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className="search-result-item"
-                      onClick={() => handleUserSelect(result)}
-                    >
-                      {pointType === 'group' ? (
-                        <span className="name">{result.group}</span>
-                      ) : (
-                        <>
-                          <span className="name">{result.name}</span>
-                          <span className="group">{result.group}</span>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+        <div className="form-card">
+          <header className="card-header">
+            <h1>نظام النقاط</h1>
+            <div className="tabs">
+              <button 
+                type="button"
+                className={`tab ${pointType === 'individual' ? 'active' : ''}`}
+                onClick={() => setPointType('individual')}
+              >
+                <span className="icon">👤</span>
+                نقاط فردية
+              </button>
+              <button 
+                type="button"
+                className={`tab ${pointType === 'group' ? 'active' : ''}`}
+                onClick={() => setPointType('group')}
+              >
+                <span className="icon">👥</span>
+                نقاط جماعية
+              </button>
             </div>
-          </div>
+          </header>
 
-          {selectedUser && (
-            <div className="selected-user-info">
-              <h3>{pointType === 'individual' ? 'معلومات المستخدم' : 'المجموعة المختارة'}</h3>
-              <div className="info-grid">
-                {pointType === 'individual' ? (
-                  <>
-                    <div className="info-item">
-                      <label>الاسم:</label>
-                      <span>{selectedUser.name}</span>
-                    </div>
-                    <div className="info-item">
-                      <label>المجموعة:</label>
-                      <span>{selectedUser.group}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="info-item group-only">
-                    <label>المجموعة:</label>
-                    <span>{selectedUser.group}</span>
+          {error && (
+            <div className="alert alert-error">
+              <span className="icon">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="form">
+            <div className="search-section">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder={pointType === 'individual' ? "ابحث عن اسم..." : "ابحث عن مجموعة..."}
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  className="search-input"
+                />
+                {searchResults.length > 0 && (
+                  <div className="search-results">
+                    {searchResults.map((result, index) => (
+                      <div
+                        key={index}
+                        className="search-result-item"
+                        onClick={() => handleUserSelect(result)}
+                      >
+                        {pointType === 'group' ? (
+                          <span className="name">{result.group}</span>
+                        ) : (
+                          <>
+                            <span className="name">{result.name}</span>
+                            <span className="group">{result.group}</span>
+                          </>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
-          )}
 
-          {selectedUser && (
-            <div className="points-section">
-              <h2>
-                {pointType === 'individual' ? 'النقاط الفردية' : 'النقاط الجماعية'}
-              </h2>
-              <div className="points-grid">
-                {Object.entries(pointType === 'individual' ? individualTypes : groupTypes)
-                  .map(([type, basePoint]) => (
-                    <div 
-                      key={type} 
-                      className={`point-card ${selectedOptions.includes(type) ? 'selected' : ''}`}
-                      onClick={() => handleOptionToggle(type)}
-                    >
-                      <div 
-                        className="point-button"
-                        role="button"
-                        tabIndex={0}
-                      >
-                        <span className="point-name">{type}</span>
-                        {selectedOptions.includes(type) && (
-                          <div 
-                            className="quantity-controls"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div
-                              className="quantity-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if ((selectedQuantities[type] || 1) > 1) {
-                                  handleQuantityChange(type, (selectedQuantities[type] || 1) - 1);
-                                }
-                              }}
-                              role="button"
-                              tabIndex={0}
-                              aria-label="decrease quantity"
-                            >
-                              -
-                            </div>
-                            <span className="quantity">
-                              {selectedQuantities[type] || 1}
-                            </span>
-                            <div
-                              className="quantity-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleQuantityChange(type, (selectedQuantities[type] || 1) + 1);
-                              }}
-                              role="button"
-                              tabIndex={0}
-                              aria-label="increase quantity"
-                            >
-                              +
-                            </div>
-                          </div>
-                        )}
+            {selectedUser && (
+              <div className="selected-user-info">
+                <h3>{pointType === 'individual' ? 'معلومات المستخدم' : 'المجموعة المختارة'}</h3>
+                <div className="info-grid">
+                  {pointType === 'individual' ? (
+                    <>
+                      <div className="info-item">
+                        <label>الاسم:</label>
+                        <span>{selectedUser.name}</span>
                       </div>
+                      <div className="info-item">
+                        <label>المجموعة:</label>
+                        <span>{selectedUser.group}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="info-item group-only">
+                      <label>المجموعة:</label>
+                      <span>{selectedUser.group}</span>
                     </div>
-                  ))}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {selectedOptions.length > 0 && (
-            <div className="summary-section">
-              <div className="summary-content">
-                <div className="selected-summary">
-                  <h3>النقاط المحددة:</h3>
-                  <div className="selected-tags">
-                    {selectedOptions.map(type => (
-                      <span key={type} className="tag">
-                        {type} ({selectedQuantities[type] || 1})
-                      </span>
+            {selectedUser && (
+              <div className="points-section">
+                <h2>
+                  {pointType === 'individual' ? 'النقاط الفردية' : 'النقاط الجماعية'}
+                </h2>
+                <div className="points-grid">
+                  {Object.entries(pointType === 'individual' ? individualTypes : groupTypes)
+                    .map(([type, basePoint]) => (
+                      <div 
+                        key={type} 
+                        className={`point-card ${selectedOptions.includes(type) ? 'selected' : ''}`}
+                        onClick={() => handleOptionToggle(type)}
+                      >
+                        <div 
+                          className="point-button"
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <span className="point-name">{type}</span>
+                          {selectedOptions.includes(type) && (
+                            <div 
+                              className="quantity-controls"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div
+                                className="quantity-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if ((selectedQuantities[type] || 1) > 1) {
+                                    handleQuantityChange(type, (selectedQuantities[type] || 1) - 1);
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label="decrease quantity"
+                              >
+                                -
+                              </div>
+                              <span className="quantity">
+                                {selectedQuantities[type] || 1}
+                              </span>
+                              <div
+                                className="quantity-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(type, (selectedQuantities[type] || 1) + 1);
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label="increase quantity"
+                              >
+                                +
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     ))}
+                </div>
+              </div>
+            )}
+
+            {selectedOptions.length > 0 && (
+              <div className="summary-section">
+                <div className="summary-content">
+                  <div className="selected-summary">
+                    <h3>النقاط المحددة:</h3>
+                    <div className="selected-tags">
+                      {selectedOptions.map(type => (
+                        <span key={type} className="tag">
+                          {type} ({selectedQuantities[type] || 1})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="total-summary">
+                    <h3>المجموع:</h3>
+                    <span className="total">{calculateTotalPoints()} نقطة</span>
                   </div>
                 </div>
-                <div className="total-summary">
-                  <h3>المجموع:</h3>
-                  <span className="total">{calculateTotalPoints()} نقطة</span>
-                </div>
               </div>
+            )}
+
+            <button
+              type="submit"
+              className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+              disabled={
+                !selectedUser ||
+                selectedOptions.length === 0 ||
+                isSubmitting
+              }
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="spinner"></span>
+                  جاري المعالجة...
+                </>
+              ) : (
+                <>
+                  <span className="icon">✓</span>
+                  إضافة النقاط
+                </>
+              )}
+            </button>
+          </form>
+
+          {submitStatus && (
+            <div className={`alert alert-${statusType}`}>
+              <span className="icon">
+                {statusType === 'success' ? '✓' : '⚠️'}
+              </span>
+              <span>{submitStatus}</span>
             </div>
           )}
-
-          <button
-            type="submit"
-            className={`submit-button ${isSubmitting ? 'loading' : ''}`}
-            disabled={
-              !selectedUser ||
-              selectedOptions.length === 0 ||
-              isSubmitting
-            }
-          >
-            {isSubmitting ? (
-              <>
-                <span className="spinner"></span>
-                جاري المعالجة...
-              </>
-            ) : (
-              <>
-                <span className="icon">✓</span>
-                إضافة النقاط
-              </>
-            )}
-          </button>
-        </form>
-
-        {submitStatus && (
-          <div className={`alert alert-${statusType}`}>
-            <span className="icon">
-              {statusType === 'success' ? '✓' : '⚠️'}
-            </span>
-            <span>{submitStatus}</span>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
