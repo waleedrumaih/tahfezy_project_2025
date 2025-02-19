@@ -12,6 +12,8 @@ import './SMSPage.css';
 import './SharedNav.css';
 import NavigationPanel from './NavigationPanel';
 import PageTransition from './PageTransition';
+import '../styles/shared.css';
+import Header from './Header';
 
 const SMSPage = () => {
   const navigate = useNavigate();
@@ -22,6 +24,11 @@ const SMSPage = () => {
   const [success, setSuccess] = useState('');
   const [messagePreview, setMessagePreview] = useState(null);
   const [groupTotals, setGroupTotals] = useState({});
+  const [message, setMessage] = useState('');
+  const [facilities, setFacilities] = useState({
+    buildings: 0,    // منشآت
+    houses: 0,       // بيوت
+  });
 
   const fetchAllPoints = async () => {
     try {
@@ -82,39 +89,49 @@ const SMSPage = () => {
     // Predefined list of point types (excluding 'بيت')
     const pointTypes = ['مكتبة', 'مسجد', 'مطعم', 'ملعب'];
     
-    // Count of houses (can be used as a joker)
+    // Count of houses
     const houseCount = points['بيت'] || 0;
     
     // Get counts of other point types
     const pointCounts = pointTypes.map(type => points[type] || 0);
     
-    // Function to count neighborhoods
+    // Function to count neighborhoods and remaining facilities
     const countNeighborhoods = () => {
       let neighborhoodCount = 0;
       let مخططCount = 0;
       let مشروعCount = 0;
       let remainingHouses = houseCount;
       let remainingPoints = [...pointCounts];
+      let missingFacilities = [];
       
       // Try to form neighborhoods using 4 unique things
       while (true) {
         // Count non-zero point types
         const nonZeroPoints = remainingPoints.filter(count => count > 0);
+        const availableTypes = pointTypes.filter((_, index) => remainingPoints[index] > 0);
         
         if (nonZeroPoints.length < 4) {
           const missingTypes = 4 - nonZeroPoints.length;
           if (remainingHouses >= missingTypes) {
+            // Can form a neighborhood with houses
             neighborhoodCount++;
             remainingHouses -= missingTypes;
+            // Reduce the counts of available facilities
             for (let i = 0; i < remainingPoints.length; i++) {
               if (remainingPoints[i] > 0) {
                 remainingPoints[i]--;
               }
             }
           } else {
+            // Can't form more neighborhoods
+            // Record missing facilities for the next potential neighborhood
+            missingFacilities = pointTypes.filter((type, index) => 
+              remainingPoints[index] === 0 && !availableTypes.includes(type)
+            );
             break;
           }
         } else {
+          // Can form a neighborhood with facilities
           neighborhoodCount++;
           for (let i = 0; i < remainingPoints.length; i++) {
             if (remainingPoints[i] > 0) {
@@ -139,7 +156,13 @@ const SMSPage = () => {
       return { 
         neighborhoodCount: remainingNeighborhoods, 
         مخططCount, 
-        مشروعCount 
+        مشروعCount,
+        remainingHouses,
+        missingFacilities,
+        remainingPoints: pointTypes.map((type, index) => ({
+          type,
+          count: remainingPoints[index]
+        })).filter(p => p.count > 0)
       };
     };
     
@@ -175,27 +198,44 @@ const SMSPage = () => {
     }
   };
 
-  const generateMessage = (points) => {
-    const { neighborhoodCount, مخططCount, مشروعCount } = checkForNeighborhood(points);
+  const generateMessage = (points, individualPoints = {}) => {
+    const { 
+      neighborhoodCount, 
+      مخططCount, 
+      مشروعCount, 
+      remainingHouses,
+      missingFacilities,
+      remainingPoints 
+    } = checkForNeighborhood(points);
     
-    const pointTypes = ['مكتبة', 'مسجد', 'مطعم', 'ملعب'];
-    const missingFacilities = pointTypes.filter(type => !points[type] || points[type] === 0);
-    const missingText = missingFacilities.join('، ');
-
     let message = `•⁠ إمارة منطقة هجر\n\n`;
 
     // Add achievements
     const achievements = [];
     if (neighborhoodCount > 0) achievements.push(`(${neighborhoodCount}) حي`);
-    if (مخططCount > 0) achievements.push(`(${مخططCount}) مخطط`);
-    if (مشروعCount > 0) achievements.push(`(${مشروعCount}) مشروع`);
+    if (individualPoints['مخطط'] && مخططCount > 0) achievements.push(`(${مخططCount}) مخطط`);
+    if (individualPoints['مشروع'] && مشروعCount > 0) achievements.push(`(${مشروعCount}) مشروع`);
 
     if (achievements.length > 0) {
       message += `تم تسجيل ${achievements.join(' و ')}\n\n`;
     }
 
+    // Add information about remaining facilities
     if (missingFacilities.length > 0) {
-      message += `وبقي منشآت (${missingText}) لإكمال الحي القادم \n\n`;
+      // If there are houses but not enough facilities
+      if (remainingHouses > 0) {
+        message += `لديك (${remainingHouses}) بيت، وتحتاج إلى منشآت (${missingFacilities.join('، ')}) لإكمال الحي القادم\n\n`;
+      } else {
+        message += `تحتاج إلى منشآت (${missingFacilities.join('، ')}) لإكمال الحي القادم\n\n`;
+      }
+    }
+
+    // Add information about extra facilities
+    if (remainingPoints.length > 0) {
+      const extraFacilities = remainingPoints
+        .map(p => `(${p.count}) ${p.type}`)
+        .join('، ');
+      message += `المنشآت الحالية: ${extraFacilities}\n\n`;
     }
 
     message += 'تمنياتنا لجميع السكان بالتطور والإزدهار الدائم والمستمر.';
@@ -290,13 +330,18 @@ const SMSPage = () => {
         return;
       }
 
-      const points = await fetchUserPoints(sampleUser.name);
-      if (!points) {
+      const userPoint = await fetchUserPoints(sampleUser.name);
+      if (!userPoint) {
         setMessagePreview('لم يتم العثور على نقاط للمستخدم المحدد.');
         return;
       }
 
-      const message = generateMessage(points);
+      // Get individual points separately
+      const allPoints = await fetchAllPoints();
+      const individualPoint = allPoints.individualPoints.find(p => p.name === sampleUser.name);
+      const individualPoints = individualPoint ? individualPoint.points : {};
+
+      const message = generateMessage(userPoint, individualPoints);
       setMessagePreview(message);
     };
 
@@ -342,13 +387,18 @@ const SMSPage = () => {
         const points = await fetchUserPoints(userName);
         if (!points || Object.keys(points).length === 0) {
           console.warn(`No points data found for user: ${userName}`);
-          return null; // Skip sending message if no points
+          return null;
         }
+
+        // Get individual points
+        const allPoints = await fetchAllPoints();
+        const individualPoint = allPoints.individualPoints.find(p => p.name === userName);
+        const individualPoints = individualPoint ? individualPoint.points : {};
 
         return {
           userName,
           number: userRecord.phone,
-          message: generateMessage(points)
+          message: generateMessage(points, individualPoints)
         };
       }));
 
@@ -385,13 +435,41 @@ const SMSPage = () => {
     }
   };
 
+  // Calculate total facilities
+  const calculateTotalFacilities = () => {
+    // If there's a house, it counts as a neighbor and adds to total facilities
+    const totalBuildings = facilities.buildings;
+    const hasHouse = facilities.houses > 0;
+    
+    // If there's a house, add it as a new facility
+    const totalFacilities = hasHouse ? totalBuildings + 1 : totalBuildings;
+    
+    return {
+      total: totalFacilities,
+      originalBuildings: facilities.buildings,
+      hasHouse: hasHouse
+    };
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFacilities(prev => ({
+      ...prev,
+      [name]: parseInt(value) || 0
+    }));
+  };
+
   return (
     <PageTransition>
       <div className="page-container">
+        <div className="background-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+        </div>
         <NavigationPanel />
         <div className="container">
-          <h1>إرسال رسائل SMS</h1>
-          
+          <Header title="إرسال رسائل SMS" />
           <div className="names-section">
             <div className="names-header">
               <h2>اختر الأسماء</h2>

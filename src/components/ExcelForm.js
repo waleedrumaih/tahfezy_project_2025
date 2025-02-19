@@ -15,6 +15,8 @@ import './ExcelForm.css';
 import './SharedNav.css';
 import PageTransition from './PageTransition';
 import NavigationPanel from './NavigationPanel';
+import '../styles/shared.css';
+import Header from './Header';
 
 const ExcelForm = () => {
   const navigate = useNavigate();
@@ -289,9 +291,10 @@ const ExcelForm = () => {
 
   return (
     <PageTransition>
-      <div className="excel-form-page">
+      <div className="page-container">
         <NavigationPanel />
         <div className="container">
+          <Header title="إضافة نقاط" />
           <div className="form-card">
             <header className="card-header">
               <h1>نظام النقاط</h1>

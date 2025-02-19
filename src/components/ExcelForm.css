@@ -1169,3 +1169,228 @@ background: #2563eb;
     font-size: 1rem;
   }
 }
+
+/* Add/update mobile responsive styles */
+@media screen and (max-width: 428px) {
+  .excel-form-page {
+    padding: 0;
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .container {
+    margin: 0;
+    padding: 0;
+  }
+
+  .form-card {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .card-header {
+    padding: 15px 10px;
+    margin-bottom: 15px;
+    background: #f8fafc;
+    border-radius: 0;
+  }
+
+  .card-header h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .tabs {
+    width: 100%;
+    padding: 5px;
+    gap: 5px;
+  }
+
+  .tab {
+    padding: 8px;
+    font-size: 14px;
+    width: 50%;
+  }
+
+  .tab .icon {
+    font-size: 16px;
+  }
+
+  .search-section {
+    margin: 15px 0;
+  }
+
+  .search-container {
+    padding: 0 10px;
+  }
+
+  .search-input {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+
+  .search-results {
+    border-radius: 8px;
+    max-height: 250px;
+  }
+
+  .search-result-item {
+    padding: 12px;
+  }
+
+  .search-result-item .name {
+    font-size: 16px;
+  }
+
+  .selected-user-info {
+    margin: 15px 10px;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .selected-user-info h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .info-grid {
+    gap: 10px;
+  }
+
+  .info-item {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .points-section {
+    margin: 15px 0;
+  }
+
+  .points-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .points-grid {
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  .point-card {
+    border-radius: 8px;
+  }
+
+  .point-button {
+    padding: 15px;
+    border-radius: 8px;
+    gap: 10px;
+  }
+
+  .point-name {
+    font-size: 16px;
+  }
+
+  .quantity-controls {
+    padding: 8px 12px;
+    gap: 8px;
+    border-radius: 6px;
+  }
+
+  .quantity-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+
+  .quantity {
+    font-size: 16px;
+    min-width: 32px;
+  }
+
+  .summary-section {
+    margin: 15px 10px;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .summary-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .selected-tags {
+    justify-content: center;
+  }
+
+  .tag {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+
+  .total-summary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .total {
+    font-size: 20px;
+  }
+
+  .submit-button {
+    max-width: none;
+    margin: 15px 10px;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+
+  .alert {
+    margin: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  /* Navigation panel adjustments */
+  .nav-panel {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .nav-content {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .nav-links {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  /* Fix bottom spacing */
+  .form-card:last-child {
+    margin-bottom: 20px;
+  }
+
+  /* Improve touch targets */
+  button, 
+  input, 
+  select {
+    min-height: 44px; /* Apple's recommended minimum touch target size */
+  }
+}

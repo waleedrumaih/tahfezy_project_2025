@@ -37,6 +37,11 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Configure Google provider
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
 // Initialize reCAPTCHA verifier
 const initRecaptcha = () => {
   if (!window.recaptchaVerifier) {

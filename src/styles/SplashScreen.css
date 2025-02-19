@@ -1,0 +1,47 @@
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logo-container {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: fadeInLogo 1s ease forwards;
+}
+
+.splash-logo {
+  width: 250px;
+  height: auto;
+}
+
+.logo-container.slide-up {
+  animation: slideUp 1s ease forwards;
+}
+
+@keyframes fadeInLogo {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-30vh) scale(0.6);
+  }
+} 

@@ -8,6 +8,7 @@ import TotalPointsPage from './components/TotalPointsPage';
 import SMSPage from './components/SMSPage';
 import AdminPanel from './components/AdminPanel';
 import { AnimatePresence } from 'framer-motion';
+import LoginPage from './components/LoginPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,13 +31,10 @@ function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route 
           path="/login" 
-          element={user ? <Navigate to="/home" /> : <Login />} 
-        />
-        <Route 
-          path="/" 
-          element={<Navigate to={user ? "/home" : "/login"} />} 
+          element={user ? <Navigate to="/home" /> : <LoginPage />}
         />
         <Route 
           path="/home" 

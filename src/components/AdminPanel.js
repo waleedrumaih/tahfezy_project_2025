@@ -109,20 +109,27 @@ const AdminPanel = () => {
               <div className="loading">جاري التحميل...</div>
             ) : (
               <div className="users-grid">
-                <button onClick={deleteAllPoints} className="delete-all-points-btn">
-                  Delete All Points
-                </button>
                 {users.map(user => (
                   <div key={user.id} className="user-card">
                     <div className="user-header">
-                      <h3>{user.name}</h3>
-                      {user.group && <span className="group-tag">{user.group}</span>}
+                      <h3>
+                        {user.type === 'group' ? `مجموعة: ${user.groupName}` : user.name}
+                      </h3>
+                      {user.type !== 'group' && user.group && (
+                        <span className="group-tag">{user.group}</span>
+                      )}
                     </div>
                     
                     <div className="points-section">
                       {editingUser?.id === user.id ? (
                         // Edit mode
                         <>
+                          <div className="editing-title">
+                            {user.type === 'group' ? 
+                              `تعديل نقاط مجموعة ${user.groupName}` : 
+                              `تعديل نقاط ${user.name}`
+                            }
+                          </div>
                           {Object.keys(pointTypes).map(type => (
                             <div key={type} className="point-input-group">
                               <label>{type}</label>
@@ -174,6 +181,11 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
+            <div className="delete-all-points-container">
+              <button className="delete-all-points-btn" onClick={deleteAllPoints}>
+                حذف جميع النقاط
+              </button>
+            </div>
           </div>
         </div>
       </div>

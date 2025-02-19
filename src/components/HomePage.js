@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import './HomePage.css';
+import '../styles/shared.css';
+import Header from './Header';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -47,35 +49,41 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="home-container">
-      <button onClick={handleLogout} className="logout-button">
-        تسجيل الخروج
-      </button>
-      
-      <header className="home-header">
-        <h1>لوحة التحكم</h1>
-        <p>مرحباً بك في نظام إدارة النقاط</p>
-      </header>
-
-      <div className="cards-grid">
-        {cards.map((card, index) => (
-          <div 
-            key={index}
-            className="card"
-            onClick={() => navigate(card.path)}
-          >
-            <div className="card-content">
-              <div 
-                className="card-icon"
-                style={{ '--card-color': card.color }}
-              >
-                {card.icon}
+    <div className="page-container">
+      <div className="background-shapes">
+        <div className="shape shape-1"></div>
+        <div className="shape shape-2"></div>
+        <div className="shape shape-3"></div>
+      </div>
+      <div className="container">
+        <Header 
+          title="لوحة التحكم"
+          subtitle="مرحباً بك في نظام إدارة النقاط"
+        />
+        <button onClick={handleLogout} className="logout-button">
+          تسجيل الخروج
+        </button>
+        
+        <div className="cards-grid">
+          {cards.map((card, index) => (
+            <div 
+              key={index}
+              className="card"
+              onClick={() => navigate(card.path)}
+            >
+              <div className="card-content">
+                <div 
+                  className="card-icon"
+                  style={{ '--card-color': card.color }}
+                >
+                  {card.icon}
+                </div>
+                <h2>{card.title}</h2>
+                <p>{card.description}</p>
               </div>
-              <h2>{card.title}</h2>
-              <p>{card.description}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
