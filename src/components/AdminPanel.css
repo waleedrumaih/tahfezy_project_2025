@@ -1,0 +1,356 @@
+.admin-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 2rem;
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+}
+
+.admin-content {
+  max-width: 600px;
+  margin: 80px auto 2rem;
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.01);
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.admin-header h1 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.admin-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(to right, #ee7752, #23a6d5);
+  border-radius: 5px;
+}
+
+.points-management h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.admin-actions {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.danger-button {
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.danger-button:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.danger-button:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.points-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.point-item {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.point-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.point-info h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.point-info p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.edit-button {
+  padding: 0.6rem 1.2rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.edit-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.nav-button {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.nav-button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.icon {
+  font-size: 1.2rem;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 1rem;
+  }
+
+  .admin-content {
+    margin: 60px auto 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .nav-button {
+    top: 1rem;
+    left: 1rem;
+  }
+}
+
+.admin-panel {
+  padding: 2rem;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.03);
+}
+
+.admin-panel h1 {
+  margin-bottom: 2rem;
+  color: #1e293b;
+  text-align: center;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.user-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.user-header h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+}
+
+.group-tag {
+  background: #e2e8f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.points-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.point-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.point-label {
+  color: #64748b;
+}
+
+.point-value {
+  font-weight: 500;
+  color: #3b82f6;
+}
+
+.point-input-group {
+  margin-bottom: 1rem;
+}
+
+.point-input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #64748b;
+}
+
+.point-input-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+  width: 100%;
+}
+
+.save-btn {
+  background: #22c55e;
+  color: white;
+  flex: 1;
+}
+
+.cancel-btn {
+  background: #e2e8f0;
+  color: #64748b;
+  flex: 1;
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+  transform: translateY(-2px);
+}
+
+.cancel-btn:hover {
+  background: #cbd5e1;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 1rem;
+  }
+
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Style for the Delete All Points button */
+.delete-all-points-btn {
+  background-color: #ff4d4d; /* Red background */
+  color: white; /* White text */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Padding for size */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition */
+  margin-bottom: 20px; /* Space below the button */
+}
+
+.delete-all-points-btn:hover {
+  background-color: #ff1a1a; /* Darker red on hover */
+}
+
+.delete-all-points-btn:focus {
+  outline: none; /* Remove outline on focus */
+} 

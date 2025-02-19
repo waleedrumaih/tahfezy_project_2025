@@ -34,74 +34,6 @@
   margin: 0 auto;
 }
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  padding: 1rem;
-}
-
-.menu-card {
-  background: white;
-  border-radius: 24px;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.menu-link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 2rem;
-  text-decoration: none;
-  color: #1e293b;
-  transition: all 0.3s ease;
-}
-
-.menu-link:hover {
-  transform: translateY(-4px);
-  background: #f8fafc;
-}
-
-.menu-icon {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
-  color: #3b82f6;
-  transition: all 0.3s ease;
-}
-
-.menu-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-}
-
-.menu-description {
-  color: #64748b;
-  text-align: center;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.logout-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  background: #f8fafc;
-  color: #ef4444;
-  font-family: 'Tajawal', sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logout-button:hover {
-  background: #fee2e2;
-  transform: translateY(-2px);
-}
-
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -113,120 +45,105 @@
 
 .card {
   background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  border-radius: 24px;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 3rem 2rem;
   text-align: center;
-  box-shadow: 
-    0 4px 6px rgba(0, 0, 0, 0.02),
-    0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    var(--card-color) 0%,
-    transparent 80%
-  );
-  opacity: 0.1;
+.card-icon {
+  width: 4rem;
+  height: 4rem;
+  background: var(--card-color);
+  color: white;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 
-    0 10px 20px rgba(0, 0, 0, 0.05),
-    0 4px 8px rgba(0, 0, 0, 0.04);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.card:hover::before {
-  opacity: 0.15;
-}
-
-.card-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, var(--card-color), var(--card-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 24px;
-  background: #f8fafc;
-  margin-bottom: 1.5rem;
+.card:hover .card-icon {
+  transform: scale(1.1);
 }
 
 .card h2 {
-  color: #1e293b;
+  color: #0f172a;
   font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
 }
 
 .card p {
   color: #64748b;
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1.5;
+}
+
+.logout-button {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.logout-button:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
   .home-container {
-    padding: 1rem;
+    padding: 2rem 1rem;
   }
 
   .home-header {
-    padding: 1rem;
-    margin-bottom: 2rem;
-    flex-direction: column;
-    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .home-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .home-header p {
+    font-size: 1.1rem;
+    padding: 0 1rem;
   }
 
   .cards-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
-  .card {
-    padding: 1.5rem;
+  .card-content {
+    padding: 2rem 1.5rem;
   }
 
-  .card-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 2rem;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .logout-button {
+    top: 1rem;
+    left: 1rem;
   }
 }
-
-.card {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }

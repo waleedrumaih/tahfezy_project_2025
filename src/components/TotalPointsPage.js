@@ -8,9 +8,12 @@ import {
   query, 
   where, 
   getDocs, 
-  deleteDoc 
+  deleteDoc,
+  updateDoc
 } from '../firebase';
 import './TotalPointsPage.css';
+import NavigationPanel from './NavigationPanel';
+import PageTransition from './PageTransition';
 
 const TotalPointsPage = () => {
   const navigate = useNavigate();
@@ -219,25 +222,6 @@ const TotalPointsPage = () => {
     }
   };
 
-  const clearAllPoints = async () => {
-    const confirmClear = window.confirm('هل أنت متأكد من مسح جميع النقاط؟');
-    if (confirmClear) {
-      try {
-        const pointsRef = collection(db, 'names');
-        const querySnapshot = await getDocs(pointsRef);
-        
-        querySnapshot.forEach(async (doc) => {
-          await deleteDoc(doc.ref);
-        });
-
-        await fetchData();
-      } catch (error) {
-        console.error('Error clearing points:', error);
-        alert('حدث خطأ أثناء مسح النقاط');
-      }
-    }
-  };
-
   const calculateGroupCounts = () => {
     const totals = {};
 
@@ -311,162 +295,113 @@ const TotalPointsPage = () => {
   }
 
   return (
-    <div className="page-container">
-      <div className="content-card">
-        <nav className="top-nav">
-          <div className="nav-buttons">
-            <button 
-              className="nav-button home-btn"
-              onClick={() => navigate('/home')}
-              data-tooltip="الرئيسية"
-            >
-              <span className="icon">⌂</span>
-            </button>
-            <button 
-              className="nav-button points-btn"
-              onClick={() => navigate('/excel-form')}
-              data-tooltip="إضافة نقاط"
-            >
-              <span className="icon">+</span>
-            </button>
-          </div>
-        </nav>
-        <div className="total-points-container">
-          <div className="page-header">
-            <h1>مجموع النقاط</h1>
-            {(sortedNames.length > 0 || Object.keys(groupTotals).length > 0) && (
-              <button onClick={clearAllPoints} className="clear-points-btn">
-                مسح جميع النقاط
-              </button>
-            )}
-          </div>
+    <PageTransition>
+      <div className="page-container">
+        <NavigationPanel />
+        <div className="container">
+          <div className="content-card">
+            <div className="total-points-container">
+              <div className="page-header">
+                <h1>مجموع النقاط</h1>
+              </div>
 
-          <div className="summary-section">
-            <h2>ملخص الإنجازات حسب المجموعات</h2>
-            <div className="groups-summary">
-              {Object.entries(calculateGroupCounts()).length > 0 ? (
-                Object.entries(calculateGroupCounts())
-                  .sort((a, b) => b[1].totalPoints - a[1].totalPoints) // Sort by total points
-                  .map(([groupName, data]) => (
-                    <div key={groupName} className="group-summary-card">
-                      <h3 className="group-name">
-                        {data.isGroup ? `مجموعة ${groupName}` : groupName}
-                      </h3>
-                      <div className="points-breakdown">
-                        <div className="points-row">
-                          <span className="points-label">نقاط المجموعة:</span>
-                          <div className="points-details">
-                            {data.groupPoints['مخطط'] > 0 && (
-                              <span className="point-type">مخطط: {data.groupPoints['مخطط']}</span>
-                            )}
-                            {data.groupPoints['مشروع'] > 0 && (
-                              <span className="point-type">مشروع: {data.groupPoints['مشروع']}</span>
-                            )}
+              <div className="summary-section">
+                <h2>ملخص الإنجازات حسب المجموعات</h2>
+                <div className="groups-summary">
+                  {Object.entries(calculateGroupCounts()).length > 0 ? (
+                    Object.entries(calculateGroupCounts())
+                      .sort((a, b) => b[1].totalPoints - a[1].totalPoints) // Sort by total points
+                      .map(([groupName, data]) => (
+                        <div key={groupName} className="group-summary-card">
+                          <h3 className="group-name">
+                            {data.isGroup ? `مجموعة ${groupName}` : groupName}
+                          </h3>
+                          <div className="points-breakdown">
+                            <div className="points-row">
+                              <span className="points-label">نقاط المجموعة:</span>
+                              <div className="points-details">
+                                {data.groupPoints['مخطط'] > 0 && (
+                                  <span className="point-type">مخطط: {data.groupPoints['مخطط']}</span>
+                                )}
+                                {data.groupPoints['مشروع'] > 0 && (
+                                  <span className="point-type">مشروع: {data.groupPoints['مشروع']}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="group-stats">
+                            <div className="stat-card">
+                              <div className="stat-icon">🏘️</div>
+                              <div className="stat-details">
+                                <span className="stat-value">{data.neighborhoodCount || 0}</span>
+                                <span className="stat-label">حي</span>
+                              </div>
+                            </div>
+                            <div className="stat-card">
+                              <div className="stat-icon">📋</div>
+                              <div className="stat-details">
+                                <span className="stat-value">{data.مخططCount || 0}</span>
+                                <span className="stat-label">مخطط</span>
+                              </div>
+                            </div>
+                            <div className="stat-card">
+                              <div className="stat-icon">🏗️</div>
+                              <div className="stat-details">
+                                <span className="stat-value">{data.مشروعCount || 0}</span>
+                                <span className="stat-label">مشروع</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                      ))
+                  ) : (
+                    <div className="no-achievements-message">
+                      لا توجد إنجازات للمجموعات حتى الآن
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {sortedNames.length === 0 ? (
+                <div className="no-points-message">
+                  <p>لا توجد نقاط مسجلة حتى الآن</p>
+                </div>
+              ) : (
+                <div className="points-grid">
+                  {sortedNames.map(({ name, points, total, neighborhoodCount, مخططCount, مشروعCount, group }) => (
+                    <div key={name} className="points-card">
+                      <div className="points-card-header">
+                        <h2>{name}</h2>
+                        <p className="group-name">{group}</p>
+                        <span className="total-points-badge">{total} نقطة</span>
+                        {neighborhoodCount > 0 && (
+                          <span className="neighborhood-badge">{neighborhoodCount} حي</span>
+                        )}
+                        {مخططCount > 0 && (
+                          <span className="مخطط-badge">{مخططCount} مخطط</span>
+                        )}
+                        {مشروعCount > 0 && (
+                          <span className="مشروع-badge">{مشروعCount} مشروع</span>
+                        )}
                       </div>
-                      <div className="group-stats">
-                        <div className="stat-card">
-                          <div className="stat-icon">🏘️</div>
-                          <div className="stat-details">
-                            <span className="stat-value">{data.neighborhoodCount || 0}</span>
-                            <span className="stat-label">حي</span>
+                      
+                      <div className="points-breakdown">
+                        {Object.entries(points).map(([point, count]) => (
+                          <div key={point} className="point-item">
+                            <span className="point-name">{point}</span>
+                            <span className="point-count">{count}</span>
                           </div>
-                        </div>
-                        <div className="stat-card">
-                          <div className="stat-icon">📋</div>
-                          <div className="stat-details">
-                            <span className="stat-value">{data.مخططCount || 0}</span>
-                            <span className="stat-label">مخطط</span>
-                          </div>
-                        </div>
-                        <div className="stat-card">
-                          <div className="stat-icon">🏗️</div>
-                          <div className="stat-details">
-                            <span className="stat-value">{data.مشروعCount || 0}</span>
-                            <span className="stat-label">مشروع</span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
-                  ))
-              ) : (
-                <div className="no-achievements-message">
-                  لا توجد إنجازات للمجموعات حتى الآن
+                  ))}
                 </div>
               )}
             </div>
           </div>
-
-          {sortedNames.length === 0 ? (
-            <div className="no-points-message">
-              <p>لا توجد نقاط مسجلة حتى الآن</p>
-            </div>
-          ) : (
-            <div className="points-grid">
-              {sortedNames.map(({ name, points, total, neighborhoodCount, مخططCount, مشروعCount, group }) => (
-                <div key={name} className="points-card">
-                  <div className="points-card-header">
-                    <h2>{name}</h2>
-                    <p className="group-name">{group}</p>
-                    <span className="total-points-badge">{total} نقطة</span>
-                    {neighborhoodCount > 0 && (
-                      <span className="neighborhood-badge">{neighborhoodCount} حي</span>
-                    )}
-                    {مخططCount > 0 && (
-                      <span className="مخطط-badge">{مخططCount} مخطط</span>
-                    )}
-                    {مشروعCount > 0 && (
-                      <span className="مشروع-badge">{مشروعCount} مشروع</span>
-                    )}
-                    <button 
-                      onClick={() => startEditing(name, points)}
-                      className="edit-points-btn"
-                    >
-                      تعديل
-                    </button>
-                  </div>
-                  
-                  {editingName === name ? (
-                    <div className="points-edit-mode">
-                      {Object.entries(points).map(([point, count]) => (
-                        <div key={point} className="point-edit-item">
-                          <span className="point-name">{point}</span>
-                          <input 
-                            type="number" 
-                            value={editPoints[point] || 0}
-                            onChange={(e) => handlePointChange(point, e.target.value)}
-                            className="point-edit-input"
-                            min="0"
-                          />
-                        </div>
-                      ))}
-                      <div className="edit-actions">
-                        <button onClick={savePointChanges} className="save-points-btn">
-                          حفظ التعديلات
-                        </button>
-                        <button onClick={() => setEditingName(null)} className="cancel-edit-btn">
-                          إلغاء
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="points-breakdown">
-                      {Object.entries(points).map(([point, count]) => (
-                        <div key={point} className="point-item">
-                          <span className="point-name">{point}</span>
-                          <span className="point-count">{count}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

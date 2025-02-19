@@ -1,21 +1,17 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { 
   getFirestore, 
   collection, 
   addDoc, 
   updateDoc,
-  query, 
-  where, 
-  getDocs, 
-  deleteDoc 
-} from 'firebase/firestore';
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup,
-  RecaptchaVerifier,
-  signInWithPhoneNumber 
-} from 'firebase/auth';
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+  getDoc 
+} from "firebase/firestore/lite";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtOU3LE0A0gUIiwye_u_JXIy9akwHWcoQ",
@@ -64,5 +60,7 @@ export {
   query, 
   where, 
   getDocs, 
-  deleteDoc
+  deleteDoc,
+  doc,
+  getDoc
 };

@@ -68,46 +68,55 @@
 
 .names-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .name-btn {
   display: flex;
   flex-direction: column;
-  padding: 1.2rem;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-align: right;
-}
-
-.name-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.name-btn.selected {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
 }
 
 .name-btn .name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1e293b;
 }
 
 .name-btn .group {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   color: #64748b;
 }
 
-.name-btn.selected .group {
-  color: rgba(255, 255, 255, 0.8);
+.name-btn .phone {
+  font-size: 0.85rem;
+  color: #64748b;
+  direction: ltr; /* For better number display */
+}
+
+.name-btn.selected {
+  background: #4f46e5;
+  border-color: #4338ca;
+}
+
+.name-btn.selected .name,
+.name-btn.selected .group,
+.name-btn.selected .phone {
+  color: white;
+}
+
+.name-btn:hover:not(.selected) {
+  background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .message-preview {
