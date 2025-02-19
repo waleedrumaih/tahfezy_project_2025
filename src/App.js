@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import ExcelForm from './components/ExcelForm';
-import TotalPoints from './components/TotalPoints';
+import TotalPoints from './components/TotalPointsPage';
 import SMSPage from './components/SMSPage';
 
 function App() {

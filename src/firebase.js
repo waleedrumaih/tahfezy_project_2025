@@ -16,6 +16,7 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber 
 } from 'firebase/auth';
+import TotalPointsPage from './components/TotalPointsPage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtOU3LE0A0gUIiwye_u_JXIy9akwHWcoQ",
@@ -66,3 +67,5 @@ export {
   getDocs, 
   deleteDoc
 };
+
+export default TotalPointsPage;
