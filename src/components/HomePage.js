@@ -1,21 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
 import './HomePage.css';
 import '../styles/shared.css';
 import Header from './Header';
 
 const HomePage = () => {
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
   const cards = [
     {
@@ -60,9 +50,6 @@ const HomePage = () => {
           title="لوحة التحكم"
           subtitle="مرحباً بك في نظام إدارة النقاط"
         />
-        <button onClick={handleLogout} className="logout-button">
-          تسجيل الخروج
-        </button>
         
         <div className="cards-grid">
           {cards.map((card, index) => (
