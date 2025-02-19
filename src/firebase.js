@@ -51,6 +51,16 @@ const initRecaptcha = () => {
   }
 };
 
+// Helper function for Google sign in
+const signInWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Export everything
 export { 
   db, 
@@ -59,6 +69,7 @@ export {
   signInWithPopup,
   signInWithPhoneNumber,
   initRecaptcha,
+  signInWithGoogle,
   collection, 
   addDoc, 
   updateDoc,

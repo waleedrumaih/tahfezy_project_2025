@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from '../firebase';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { signInWithGoogle } from '../firebase';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
@@ -17,12 +16,20 @@ const LoginPage = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithGoogle();
       navigate('/');
     } catch (error) {
       console.error('Google login error:', error);
-      setError('حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.');
+      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.';
+      
+      // Handle specific error cases
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'تم إغلاق نافذة تسجيل الدخول. الرجاء المحاولة مرة أخرى.';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = 'تم إلغاء طلب تسجيل الدخول. الرجاء المحاولة مرة أخرى.';
+      }
+      
+      setError(errorMessage);
     }
   };
 
