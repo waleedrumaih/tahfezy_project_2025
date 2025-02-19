@@ -27,6 +27,12 @@ const firebaseConfig = {
   measurementId: "G-6MY4PRGGT6"
 };
 
+console.log('Firebase Config:', {
+  apiKey: process.env.REACT_APP_API_KEY ? 'exists' : 'missing',
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN ? 'exists' : 'missing',
+  projectId: process.env.REACT_APP_PROJECT_ID ? 'exists' : 'missing'
+});
+
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 
