@@ -1,0 +1,208 @@
+/* Shared Button Toggle Styles */
+.toggle-button {
+  padding: 1rem 2rem;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: white;
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #3b82f6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.toggle-button:hover:not(.active) {
+  background: #f8fafc;
+  color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.toggle-button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.toggle-button.active:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* Update ExcelForm point buttons */
+.point-button {
+  width: 100%;
+  padding: 2rem;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: white;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.point-button::after {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.point-card.selected .point-button {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.point-card.selected .point-button::after {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #eff6ff;
+}
+
+.point-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* SMS Page group buttons */
+.group-btn {
+  padding: 1rem 1.5rem;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: white;
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-btn:hover {
+  background: #f8fafc;
+  color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.group-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Name selection cards */
+.name-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.name-card::after {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.name-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.name-card.selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.name-card.selected::after {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #eff6ff;
+}
+
+/* Quantity controls */
+.quantity-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: white;
+  color: #3b82f6;
+  font-size: 1.4rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid #e2e8f0;
+}
+
+.quantity-btn:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.quantity-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .toggle-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .point-button {
+    padding: 1.5rem;
+  }
+
+  .quantity-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+} 

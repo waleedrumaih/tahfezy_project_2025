@@ -36,3 +36,13 @@
     transform: rotate(360deg);
   }
 }
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #64748b;
+  background: linear-gradient(135deg, #f6f8fb 0%, #e9eef5 100%);
+}
