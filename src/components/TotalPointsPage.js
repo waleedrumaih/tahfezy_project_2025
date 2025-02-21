@@ -225,12 +225,12 @@ const TotalPointsPage = () => {
   const calculateGroupCounts = () => {
     const totals = {};
 
-    // First, add group points from groupTotals
+    // Initialize groups
     Object.entries(groupTotals).forEach(([groupName, data]) => {
       if (!totals[groupName]) {
         totals[groupName] = {
-          groupPoints: { ...data.points }, // Direct group points
-          userPoints: {},                  // Points from users
+          groupPoints: { ...data.points },
+          userPoints: {},
           neighborhoodCount: 0,
           مخططCount: 0,
           مشروعCount: 0,
@@ -240,7 +240,7 @@ const TotalPointsPage = () => {
       }
     });
 
-    // Then add individual points to their respective groups
+    // Add individual achievements to groups
     sortedNames.forEach(item => {
       const groupName = item.group || 'Ungrouped';
       
@@ -256,32 +256,40 @@ const TotalPointsPage = () => {
         };
       }
 
-      // Add individual points to userPoints
+      // Add individual points and achievements
       Object.entries(item.points).forEach(([type, count]) => {
         totals[groupName].userPoints[type] = (totals[groupName].userPoints[type] || 0) + count;
       });
+      totals[groupName].neighborhoodCount += item.neighborhoodCount || 0;
     });
 
-    // Calculate final counts for each group
-    const filteredTotals = {};
+    // Calculate achievements and convert them
     Object.entries(totals).forEach(([groupName, groupData]) => {
-      // Calculate achievements from group points
-      const groupCounts = checkForNeighborhood(groupData.groupPoints);
-      
-      // Calculate achievements from user points
-      const userCounts = checkForNeighborhood(groupData.userPoints);
-
-      // Combine the counts
-      groupData.neighborhoodCount = (groupCounts.neighborhoodCount || 0) + (userCounts.neighborhoodCount || 0);
-      groupData.مخططCount = (groupCounts.مخططCount || 0) + (userCounts.مخططCount || 0);
-      groupData.مشروعCount = (groupCounts.مشروعCount || 0) + (userCounts.مشروعCount || 0);
-
       // Calculate total points
       const groupPointsTotal = Object.values(groupData.groupPoints).reduce((sum, count) => sum + count, 0);
       const userPointsTotal = Object.values(groupData.userPoints).reduce((sum, count) => sum + count, 0);
       groupData.totalPoints = groupPointsTotal + userPointsTotal;
 
-      // Only include groups that have at least one achievement
+      // Convert 3 neighborhoods into مخطط
+      const additionalMukhatat = Math.floor(groupData.neighborhoodCount / 3);
+      groupData.مخططCount += additionalMukhatat;
+      groupData.neighborhoodCount = groupData.neighborhoodCount % 3; // Keep remaining neighborhoods
+
+      // Add any مخطط from group points
+      groupData.مخططCount += groupData.groupPoints['مخطط'] || 0;
+
+      // Convert 3 مخطط into مشروع
+      const additionalMashru = Math.floor(groupData.مخططCount / 3);
+      groupData.مشروعCount += additionalMashru;
+      groupData.مخططCount = groupData.مخططCount % 3; // Keep remaining مخطط
+
+      // Add any direct مشروع from group points
+      groupData.مشروعCount += groupData.groupPoints['مشروع'] || 0;
+    });
+
+    // Filter out groups with no achievements
+    const filteredTotals = {};
+    Object.entries(totals).forEach(([groupName, groupData]) => {
       if (groupData.neighborhoodCount > 0 || groupData.مخططCount > 0 || groupData.مشروعCount > 0) {
         filteredTotals[groupName] = groupData;
       }
