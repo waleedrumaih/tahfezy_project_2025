@@ -409,6 +409,7 @@ const SMSPage = () => {
 
           const data = await response.json();
           if (data.status === "Success") {
+            console.log(`Message sent to ${userName}: ${data.message}`);
             successCount++;
           } else {
             console.warn(`Failed to send message to ${userName}: ${data.message}`);
@@ -423,6 +424,8 @@ const SMSPage = () => {
         }
       } else {
         let successCount = 0;
+        let skippedCount = 0;
+        
         for (const userName of selectedNames) {
           const userRecord = names.find(n => n.name === userName);
           if (!userRecord?.phone) {
@@ -431,8 +434,10 @@ const SMSPage = () => {
           }
 
           const points = await fetchUserPoints(userName);
+          // Skip users with no points or empty points object
           if (!points || Object.keys(points).length === 0) {
-            console.warn(`No points data found for user: ${userName}`);
+            console.warn(`Skipping user with no points: ${userName}`);
+            skippedCount++;
             continue;
           }
 
@@ -464,7 +469,11 @@ const SMSPage = () => {
         }
 
         if (successCount > 0) {
-          setSuccess(`تم إرسال ${successCount} رسالة بنجاح`);
+          let successMessage = `تم إرسال ${successCount} رسالة بنجاح`;
+          if (skippedCount > 0) {
+            successMessage += ` (تم تخطي ${skippedCount} مستخدم لعدم وجود نقاط)`;
+          }
+          setSuccess(successMessage);
         } else {
           throw new Error('فشل إرسال جميع الرسائل');
         }
