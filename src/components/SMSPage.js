@@ -177,24 +177,13 @@ const SMSPage = () => {
       const allPoints = await fetchAllPoints();
       if (!allPoints) return null;
 
-      const { individualPoints, groupPoints } = allPoints;
+      const { individualPoints } = allPoints;
       
-      // Find the user's points
+      // Find the user's points - only individual points, no group points
       const userPoint = individualPoints.find(p => p.name === userName);
       if (!userPoint) return null;
 
-      // Get the user's group points if they belong to a group
-      const userGroup = userPoint.group;
-      let combinedPoints = { ...userPoint.points };
-
-      if (userGroup && userGroup !== 'Ungrouped' && groupPoints[userGroup]) {
-        // Add group points to user points
-        Object.entries(groupPoints[userGroup].points).forEach(([type, count]) => {
-          combinedPoints[type] = (combinedPoints[type] || 0) + count;
-        });
-      }
-
-      return combinedPoints;
+      return userPoint.points;
     } catch (error) {
       console.error('Error fetching user points:', error);
       return null;
@@ -213,32 +202,27 @@ const SMSPage = () => {
     
     let message = `•⁠ إمارة منطقة هجر\n\n`;
 
-    // Add achievements
-    const achievements = [];
-    if (neighborhoodCount > 0) achievements.push(`(${neighborhoodCount}) حي`);
-    if (individualPoints['مخطط'] && مخططCount > 0) achievements.push(`(${مخططCount}) مخطط`);
-    if (individualPoints['مشروع'] && مشروعCount > 0) achievements.push(`(${مشروعCount}) مشروع`);
+    // Build the achievements line
+    const parts = [];
+    if (neighborhoodCount % 3 > 0) parts.push(`(${neighborhoodCount % 3}) حي`);
+    if (مخططCount % 3 > 0) parts.push(`(${مخططCount % 3}) مخطط`);
+    if (مشروعCount > 0) parts.push(`(${مشروعCount}) مشروع`);
 
-    if (achievements.length > 0) {
-      message += `تم تسجيل ${achievements.join(' و ')}\n\n`;
+    if (parts.length > 0) {
+      message += `تم تسجيل ${parts.join(' و ')}\n\n`;
     }
 
-    // Add information about remaining facilities
-    if (missingFacilities.length > 0) {
-      // If there are houses but not enough facilities
-      if (remainingHouses > 0) {
-        message += `لديك (${remainingHouses}) بيت، وتحتاج إلى منشآت (${missingFacilities.join('، ')}) لإكمال الحي القادم\n\n`;
-      } else {
-        message += `تحتاج إلى منشآت (${missingFacilities.join('، ')}) لإكمال الحي القادم\n\n`;
-      }
-    }
-
-    // Add information about extra facilities
+    // Add information about current facilities
     if (remainingPoints.length > 0) {
-      const extraFacilities = remainingPoints
+      const currentFacilities = remainingPoints
         .map(p => `(${p.count}) ${p.type}`)
         .join('، ');
-      message += `المنشآت الحالية: ${extraFacilities}\n\n`;
+      message += `المنشآت المتوفرة: ${currentFacilities}\n\n`;
+    }
+
+    // Add information about missing facilities for next neighborhood
+    if (missingFacilities.length > 0) {
+      message += `تحتاج لإكمال الحي القادم: ${missingFacilities.join('، ')}\n\n`;
     }
 
     message += 'تمنياتنا لجميع السكان بالتطور والإزدهار الدائم والمستمر.';
